@@ -39,26 +39,57 @@ apt-get update -qq && apt-get install -y -qq git wget curl ffmpeg
 echo "🐍 Python version:"
 python --version
 
+# Clean previous installation attempts (optional)
+echo "🧹 Cleaning previous installation attempts..."
+pip uninstall -y decord accelerate || true
+
 # Install Python dependencies
 echo "📚 Installing Python dependencies..."
 pip install --upgrade pip
-pip install -r requirements.txt
 
-# Install PyTorch with CUDA 12.8 support
-echo "🔥 Installing PyTorch 2.7.0 with CUDA 12.8..."
-pip install torch==2.7.0+cu128 torchvision==0.22.0+cu128 --index-url https://download.pytorch.org/whl/cu128
+# Install PyTorch with CUDA 12.1 support (using --extra-index-url instead of --index-url)
+echo "🔥 Installing PyTorch 2.5.1 with CUDA 12.1..."
+pip install --upgrade --no-cache-dir \
+  --extra-index-url https://download.pytorch.org/whl/cu121 \
+  torch==2.5.1+cu121 torchvision==0.20.1+cu121
 
-# Install flash-attention
+# Install specific Python dependencies from fixer.txt (excluding torch/torchvision)
+echo "📚 Installing specific Python dependencies..."
+pip install --no-cache-dir \
+  transformers==4.49.0 accelerate==0.34.0 einops==0.8.1 safetensors==0.4.5 \
+  numpy==1.24.4 scipy==1.10.1 matplotlib==3.7.0 pyyaml requests==2.32.3
+
+# Install decord (CPU version)
+echo "🎬 Installing decord..."
+pip install --no-cache-dir decord==0.6.0
+
+# Install additional requirements from requirements.txt (excluding conflicting packages)
+echo "📚 Installing additional requirements..."
+pip install --no-cache-dir \
+  huggingface_hub==0.29.1 opencv_python==4.7.0.72 pyarrow==11.0.0 \
+  sentencepiece==0.1.99 wandb gradio==4.44.1 gradio_client
+
+# Install flash-attention for A100 performance optimization
 echo "⚡ Installing flash-attention..."
-pip install flash-attn==2.7.4.post1 --no-build-isolation
+pip install --no-build-isolation flash_attn==2.7.4.post1
 
-# Create necessary directories
+# Fix pydantic version conflicts
+echo "🔧 Fixing pydantic version conflicts..."
+pip uninstall -y pydantic pydantic_core || true
+pip install --no-cache-dir "pydantic==2.10.6"
+
+# Create necessary directories (using /workspace path for RunPod)
 echo "📁 Creating directories..."
-mkdir -p models/BAGEL-7B-MoT offload cache
+mkdir -p /workspace/offload /workspace/cache
 
-# Download model
-echo "⬇️  Downloading BAGEL-7B-MoT model..."
-python download_model.py --model_dir models/BAGEL-7B-MoT
+# Check if model exists (assuming it's already downloaded)
+echo "🔍 Checking if BAGEL-7B-MoT model exists..."
+if [ -d "/workspace/models/BAGEL-7B-MoT" ] && [ "$(ls -A /workspace/models/BAGEL-7B-MoT)" ]; then
+    echo "✅ Model found at /workspace/models/BAGEL-7B-MoT"
+else
+    echo "⚠️  Model not found at /workspace/models/BAGEL-7B-MoT"
+    echo "   Please ensure the model is downloaded before running the app"
+fi
 
 # Verify installation
 echo "🔍 Verifying installation..."
@@ -91,14 +122,5 @@ echo ""
 echo "🎉 Setup completed successfully!"
 echo ""
 echo "🚀 To start BAGEL:"
-echo "   python app.py --server_name 0.0.0.0 --server_port 7860 --share"
+echo "   python app.py --server_name 0.0.0.0 --server_port 7860 --model_path /workspace/models/BAGEL-7B-MoT"
 echo ""
-echo "🌐 The app will be available at:"
-echo "   - Local: http://localhost:7860"
-echo "   - Public: Check the Gradio output for the public URL"
-echo ""
-echo "💡 Tips for RunPod:"
-echo "   - Use port 7860 for Gradio interface"
-echo "   - The --share flag creates a public URL"
-echo "   - Model files are in models/BAGEL-7B-MoT/"
-echo "   - Offload directory is used for memory optimization" 

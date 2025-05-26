@@ -21,3 +21,6 @@ pip install --no-cache-dir decord==0.6.0
 # 4. (opcional) Flash-Attention para exprimir la A100
 #    – salta este paso si no necesitas el extra de rendimiento –
 pip install --no-build-isolation flash_attn==2.7.4.post1
+
+pip uninstall -y pydantic pydantic_core			
+pip install --no-cache-dir "pydantic==2.10.6"
