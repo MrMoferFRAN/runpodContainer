@@ -1,4 +1,4 @@
-decord>=0.7.0
+decord==0.6.0
 einops==0.8.1
 huggingface_hub==0.29.1
 matplotlib==3.7.0
