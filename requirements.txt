@@ -1,4 +1,4 @@
-decord
+decord==0.6.0      # última versión en PyPI – GPU opcional si compilas
 einops==0.8.1
 huggingface_hub==0.29.1
 matplotlib==3.7.0
@@ -16,4 +16,5 @@ transformers==4.49.0
 # flash_attn==2.7.4.post1
 accelerate>=0.34.0
 wandb
-gradio>=4.0.0 
+gradio==4.44.1
+gradio_client

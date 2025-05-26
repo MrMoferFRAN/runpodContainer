@@ -1,0 +1,23 @@
+# 0. (opcional) Limpia restos de intentos anteriores
+pip uninstall -y decord accelerate
+
+# 1. PyTorch & visión – recuerda usar --extra-index-url, NO --index-url
+pip install --upgrade --no-cache-dir \
+  --extra-index-url https://download.pytorch.org/whl/cu121 \
+  torch==2.5.1+cu121 torchvision==0.20.1+cu121
+
+# 2. Dependencias Python del repo
+pip install --no-cache-dir \
+  transformers==4.49.0 accelerate==0.34.0 einops==0.8.1 safetensors==0.4.5 \
+  numpy==1.24.4 scipy==1.10.1 matplotlib==3.7.0 pyyaml requests==2.32.3
+
+# 3. Decord (elige UNO de los dos caminos)
+## A) Rueda pre-compilada CPU
+pip install --no-cache-dir decord==0.6.0
+## B) Compilación con soporte GPU
+# apt-get install ...  (paquetes ↑) y luego:
+# pip install "git+https://github.com/dmlc/decord.git@master#subdirectory=python"
+
+# 4. (opcional) Flash-Attention para exprimir la A100
+#    – salta este paso si no necesitas el extra de rendimiento –
+pip install --no-build-isolation flash_attn==2.7.4.post1
